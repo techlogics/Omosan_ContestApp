@@ -2,8 +2,8 @@
 //  NearHereTests.m
 //  NearHereTests
 //
-//  Created by Kenichi Saito on 10/17/14.
-//  Copyright (c) 2014 Adcras. All rights reserved.
+//  Created by KenichiSaito on 10/18/14.
+//  Copyright (c) 2014 KenichiSaito. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

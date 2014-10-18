@@ -2,13 +2,13 @@
 //  ViewController.m
 //  NearHere
 //
-//  Created by Kenichi Saito on 10/17/14.
-//  Copyright (c) 2014 Adcras. All rights reserved.
+//  Created by KenichiSaito on 10/18/14.
+//  Copyright (c) 2014 KenichiSaito. All rights reserved.
 //
 
 #import "ViewController.h"
 
-@interface ViewController () <UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate>
+@interface ViewController ()
 
 @end
 
@@ -16,10 +16,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _placeListCollection.delegate = self;
-    _placeListCollection.dataSource = self;
-    
-    
+    // Do any additional setup after loading the view, typically from a nib.
 }
 
 - (void)didReceiveMemoryWarning {
@@ -27,15 +24,4 @@
     // Dispose of any resources that can be recreated.
 }
 
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-{
-    return 1;
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    PlaceCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PlaceCell" forIndexPath:indexPath];
-    return cell;
-}
 @end
