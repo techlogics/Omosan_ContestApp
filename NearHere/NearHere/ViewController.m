@@ -14,6 +14,9 @@
 @property (nonatomic, strong) NSMutableArray * images;
 @property (nonatomic, retain) CLLocationManager * locationManager;
 @property NSArray * placeList;
+@property NSMutableDictionary * placeImageReference;
+@property dispatch_queue_t q_global; // = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+@property dispatch_queue_t q_main; // = dispatch_get_main_queue();
 
 @end
 
@@ -25,6 +28,8 @@
     _placeCollectionView.dataSource = self;
     _locationManager = [[CLLocationManager alloc] init];
     _locationManager.delegate = self;
+    _q_global = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _q_main = dispatch_get_main_queue();
     
     if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) { // iOS8以降
         
@@ -39,34 +44,31 @@
         
     }
     
-    NSUInteger index;
-    for (index = 0; index < 14; ++index) {
-        // Setup image name
-        NSString *name = [NSString stringWithFormat:@"image%03ld.jpg", (unsigned long)index];
-        if(!self.images)
-            self.images = [NSMutableArray arrayWithCapacity:0];
-        [self.images addObject:name];
-    }
     [_placeCollectionView reloadData];
 }
 
 #pragma mark - UICollectionViewDatasource Methods
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.images.count;
+    return 20;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     PlaceCollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PlaceCell" forIndexPath:indexPath];
-    
-    //get image name and assign
-    NSString* imageName = [self.images objectAtIndex:indexPath.item];
-    cell.image = [UIImage imageNamed:imageName];
+
+    // cell.image = _placeImage;
+    dispatch_async(_q_main, ^{
+        NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", _placeImageReference[[NSString stringWithFormat:@"%ld", indexPath.row]]];
+        NSData * photoData = [NSData dataWithContentsOfURL:[NSURL URLWithString:photoUrl]];
+        UIImage * image = [[UIImage alloc] initWithData:photoData];
+        cell.name.text = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
+        cell.image = image;
+    });
     
     //set offset accordingly
     CGFloat yOffset = ((self.placeCollectionView.contentOffset.y - cell.frame.origin.y) / IMAGE_HEIGHT) * IMAGE_OFFSET_SPEED;
     cell.imageOffset = CGPointMake(0.0f, yOffset);
     
-    cell.name.text = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
+    
     
     return cell;
 }
@@ -97,13 +99,37 @@
 // API接続
 - (void)getPlaceListWith:(double)latitude and:(double)longtitude
 {
-    NSString * url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=500&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", latitude, longtitude];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-    NSData *json = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
-    NSError *error=nil;
-    NSArray *array = [NSJSONSerialization JSONObjectWithData:json options:NSJSONReadingAllowFragments error:&error];
-    _placeList = [array valueForKeyPath:@"results"];
-    NSLog(@"%@", _placeList);
+    UIApplication * application = [UIApplication sharedApplication];
+    application.networkActivityIndicatorVisible = YES;
+    
+    
+    
+    dispatch_async(_q_global, ^{
+        
+        NSString * url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=500&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", latitude, longtitude];
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+        NSData *json = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+        NSError *error=nil;
+        NSArray *array = [NSJSONSerialization JSONObjectWithData:json options:NSJSONReadingAllowFragments error:&error];
+        
+        if ([[array valueForKey:@"status"] isEqualToString:@"OK"]) {
+            _placeList = [array valueForKeyPath:@"results"];
+        } else if ([[array valueForKey:@"status"] isEqualToString:@"OVER_QUERY_LIMIT"]) {
+            UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Sorry..." message:@"Over Query Limit.Please Try Again Tomorrow" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [self.view addSubview:alert];
+        }
+        
+        for (int i = 0; i < 20; i++) {
+            if ([_placeList[i] containsObject:@"photos"]) {
+                // NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", _placeList[i][@"photos"][@"photo_reference"]];
+                [_placeImageReference setValue:_placeList[i][@"photos"][@"photo_reference"] forKey:[NSString stringWithFormat:@"%d", i]];
+            }
+        }
+        
+        dispatch_async(_q_main, ^{
+            [self.placeCollectionView reloadData];
+        });
+    });
 }
 
 #pragma mark - UIScrollViewdelegate methods
@@ -112,14 +138,6 @@
         CGFloat yOffset = ((self.placeCollectionView.contentOffset.y - view.frame.origin.y) / IMAGE_HEIGHT) * IMAGE_OFFSET_SPEED;
         view.imageOffset = CGPointMake(0.0f, yOffset);
     }
-}
-
-- (void)getPlacePhotoWith:(NSString *)photoReferance
-{
-    NSString * url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=320&maxheight=160&photoreference=%@&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", photoReferance];
-    NSData * data = [NSData dataWithContentsOfURL:[NSURL URLWithString:url]];
-    // _placeImage = (UIImage *)data;
-    // NSLog(@"%@", _placeImage);
 }
 
 - (void)didReceiveMemoryWarning {
