@@ -15,6 +15,7 @@
 		96972B0F19F29BB50061E74C /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 96972B0D19F29BB50061E74C /* LaunchScreen.xib */; };
 		96972B1B19F29BB50061E74C /* NearHereTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 96972B1A19F29BB50061E74C /* NearHereTests.m */; };
 		96972B4619F2BCDD0061E74C /* PlaceCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 96972B4519F2BCDD0061E74C /* PlaceCollectionViewCell.m */; };
+		96ABCACB19F3A4770082A468 /* noPhoto.png in Resources */ = {isa = PBXBuildFile; fileRef = 96ABCACA19F3A4770082A468 /* noPhoto.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		96972B1A19F29BB50061E74C /* NearHereTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NearHereTests.m; sourceTree = "<group>"; };
 		96972B4419F2BCC80061E74C /* PlaceCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaceCollectionViewCell.h; sourceTree = "<group>"; };
 		96972B4519F2BCDD0061E74C /* PlaceCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaceCollectionViewCell.m; sourceTree = "<group>"; };
+		96ABCACA19F3A4770082A468 /* noPhoto.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = noPhoto.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				96972B0819F29BB50061E74C /* Main.storyboard */,
 				96972B0B19F29BB50061E74C /* Images.xcassets */,
 				96972B0D19F29BB50061E74C /* LaunchScreen.xib */,
+				96ABCACA19F3A4770082A468 /* noPhoto.png */,
 				96972AFE19F29BB50061E74C /* Supporting Files */,
 			);
 			path = NearHere;
@@ -205,6 +208,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96972B0A19F29BB50061E74C /* Main.storyboard in Resources */,
+				96ABCACB19F3A4770082A468 /* noPhoto.png in Resources */,
 				96972B0F19F29BB50061E74C /* LaunchScreen.xib in Resources */,
 				96972B0C19F29BB50061E74C /* Images.xcassets in Resources */,
 			);

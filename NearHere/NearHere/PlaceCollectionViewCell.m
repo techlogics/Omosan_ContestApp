@@ -29,29 +29,19 @@
     return self;
 }
 
-/*
- // Only override drawRect: if you perform custom drawing.
- // An empty implementation adversely affects performance during animation.
- - (void)drawRect:(CGRect)rect
- {
- // Drawing code
- }
- */
 
 #pragma mark - Setup Method
 - (void)setupImageView
 {
-    // Clip subviews
     self.clipsToBounds = YES;
     
-    // Add image subview
     // self.MJImageView = [[UIImageView alloc] initWithFrame:CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, IMAGE_HEIGHT)];
     self.MJImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 320, IMAGE_HEIGHT)];
     self.MJImageView.backgroundColor = [UIColor redColor];
     self.MJImageView.contentMode = UIViewContentModeScaleAspectFill;
     self.MJImageView.clipsToBounds = NO;
     
-    self.name = [[UILabel alloc] initWithFrame:CGRectMake(20, 140, 280, 20)];
+    self.name = [[UILabel alloc] initWithFrame:CGRectMake(20, 140, 280, 20)]; //
     self.name.textAlignment = NSTextAlignmentCenter;
     self.name.textColor = [UIColor whiteColor];
     [self addSubview:self.MJImageView];
@@ -62,19 +52,15 @@
 
 - (void)setImage:(UIImage *)image
 {
-    // Store image
     self.MJImageView.image = image;
     
-    // Update padding
     [self setImageOffset:self.imageOffset];
 }
 
 - (void)setImageOffset:(CGPoint)imageOffset
 {
-    // Store padding value
     _imageOffset = imageOffset;
     
-    // Grow image view
     CGRect frame = self.MJImageView.bounds;
     CGRect offsetFrame = CGRectOffset(frame, _imageOffset.x, _imageOffset.y);
     self.MJImageView.frame = offsetFrame;
