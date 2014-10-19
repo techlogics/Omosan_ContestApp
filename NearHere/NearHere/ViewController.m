@@ -15,9 +15,9 @@
 @property (nonatomic, strong) NSMutableArray * images;
 @property (nonatomic, retain) CLLocationManager * locationManager;
 @property (nonatomic, copy)   NSArray * placeList;
-@property NSArray * placeImageReference;
-@property dispatch_queue_t q_global; // = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-@property dispatch_queue_t q_main; // = dispatch_get_main_queue();
+@property (nonatomic) dispatch_queue_t q_global; // = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+@property (nonatomic) dispatch_queue_t q_main; // = dispatch_get_main_queue();
+@property UIRefreshControl * refresh;
 
 @end
 
@@ -25,15 +25,6 @@
 
 - (void)viewDidLoad
 {
-    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
-    // tableViewの中身が空の場合でも UIRefreshControl を使えるようにする
-    self.placeCollectionView.alwaysBounceVertical = YES;
-    
-    [refreshControl addTarget:self
-                       action:@selector(refreshAction:)
-             forControlEvents:UIControlEventValueChanged];
-    [_placeCollectionView addSubview:refreshControl];
-    
     [super viewDidLoad];
     _placeCollectionView.delegate = self;
     _placeCollectionView.dataSource = self;
@@ -50,8 +41,12 @@
         // 位置測位スタート
         [_locationManager startUpdatingLocation];
     }
-    
-    // [_placeCollectionView reloadData];
+    _placeCollectionView.alwaysBounceVertical = YES;
+    _refresh = [[UIRefreshControl alloc] init];
+    [_refresh addTarget:self
+                 action:@selector(refreshAction:)
+       forControlEvents:UIControlEventValueChanged];
+    [_placeCollectionView addSubview:_refresh];
 }
 
 #pragma mark - UICollectionViewDatasource Methods
@@ -61,29 +56,32 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    
     PlaceCollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PlaceCell" forIndexPath:indexPath];
-
-    dispatch_async(_q_main, ^{
-        
-        _placeImageReference = _placeList[indexPath.row][@"photos"];
-        NSArray * modifyReference = [_placeImageReference valueForKey:@"photo_reference"];
-        NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", modifyReference[0]];
-        NSData * photoData = [NSData dataWithContentsOfURL:[NSURL URLWithString:photoUrl]];
-        UIImage * image = [[UIImage alloc] initWithData:photoData];
-        cell.image = image;
-        // cell.image = [UIImage imageNamed:@"noPhoto"];
-        cell.name.text = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
-        
-    });
-    
     //set offset accordingly
     CGFloat yOffset = ((self.placeCollectionView.contentOffset.y - cell.frame.origin.y) / IMAGE_HEIGHT) * IMAGE_OFFSET_SPEED;
     cell.imageOffset = CGPointMake(0.0f, yOffset);
-    
-    
+    cell.name.text = @"Loading";
+    cell.image = [UIImage imageNamed:@"blank"];
+    dispatch_async(_q_global, ^{
+
+        NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", [_placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0]];
+        NSData * photoData = [NSData dataWithContentsOfURL:[NSURL URLWithString:photoUrl]];
+        dispatch_async(_q_main, ^{
+
+            UIImage * image = [[UIImage alloc] initWithData:photoData];
+            cell.image = image;
+            cell.name.text = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
+            UIApplication *application = [UIApplication sharedApplication];
+            application.networkActivityIndicatorVisible = NO;
+        });
+    });
     
     return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    
 }
 
 // 位置情報が許可されたら呼ばれる
@@ -126,7 +124,10 @@
         NSArray *array = [NSJSONSerialization JSONObjectWithData:json options:NSJSONReadingAllowFragments error:&error];
         
         if ([[array valueForKey:@"status"] isEqualToString:@"OK"]) {
-            _placeList = [array valueForKeyPath:@"results"];
+            _placeList = [array valueForKey:@"results"];
+            dispatch_async(_q_main, ^{
+                [_placeCollectionView reloadData];
+            });
         } else if ([[array valueForKey:@"status"] isEqualToString:@"OVER_QUERY_LIMIT"]) {
             UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Sorry..." message:@"Over Query Limit.Please Try Again Tomorrow" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [self.view addSubview:alert];
@@ -136,7 +137,8 @@
             
             UIApplication *application = [UIApplication sharedApplication];
             application.networkActivityIndicatorVisible = NO; // インジケータOFF
-            
+            [_placeCollectionView reloadData];
+            [_refresh endRefreshing];
         });
     });
     
@@ -146,7 +148,6 @@
 {
     [sender beginRefreshing];
     [_locationManager startUpdatingLocation];
-    [sender endRefreshing];
 }
 
 
@@ -162,7 +163,6 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end
