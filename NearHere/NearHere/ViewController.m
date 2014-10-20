@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "DetailViewController.h"
 #import "PlaceCollectionViewCell.h"
 
 @interface ViewController () <UICollectionViewDataSource, UICollectionViewDelegate, CLLocationManagerDelegate, UIScrollViewDelegate>
@@ -26,6 +27,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    
     _placeCollectionView.delegate = self;
     _placeCollectionView.dataSource = self;
     _locationManager = [[CLLocationManager alloc] init];
@@ -64,7 +67,7 @@
     cell.image = [UIImage imageNamed:@"blank"];
     dispatch_async(_q_global, ^{
 
-        NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", [_placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0]];
+        NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY", [_placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0]];
         NSData * photoData = [NSData dataWithContentsOfURL:[NSURL URLWithString:photoUrl]];
         dispatch_async(_q_main, ^{
 
@@ -81,7 +84,9 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    DetailViewController * detailViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"DetailViewController"];
     
+    [self.navigationController pushViewController:detailViewController animated:YES];
 }
 
 // 位置情報が許可されたら呼ばれる
@@ -117,18 +122,18 @@
     
     dispatch_async(_q_global, ^{
         
-        NSString * url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=500&sensor=true&key=AIzaSyCrf9FYI26DuWw5MFR1t82NHIU30Hod6rM", latitude, longtitude];
+        NSString * url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=500&sensor=true&key=AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY", latitude, longtitude];
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
         NSData *json = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
         NSError *error=nil;
         NSArray *array = [NSJSONSerialization JSONObjectWithData:json options:NSJSONReadingAllowFragments error:&error];
-        
+        NSLog(@"%@", [array valueForKey:@"status"]);
         if ([[array valueForKey:@"status"] isEqualToString:@"OK"]) {
             _placeList = [array valueForKey:@"results"];
             dispatch_async(_q_main, ^{
                 [_placeCollectionView reloadData];
             });
-        } else if ([[array valueForKey:@"status"] isEqualToString:@"OVER_QUERY_LIMIT"]) {
+        } else {
             UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Sorry..." message:@"Over Query Limit.Please Try Again Tomorrow" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [self.view addSubview:alert];
         }
