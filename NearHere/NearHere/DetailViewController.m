@@ -14,14 +14,22 @@
 
 @implementation DetailViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    _nameLabel.text = _name;
+    _adressLabel.text = _adress;
+    _urlLabel.text = _url;
+    _phoneLabel.text = _phone;
+    
+    _mapWebView.scrollView.scrollEnabled = NO;
+    NSString * iframe = [NSString stringWithFormat:@"<html><head><title></title><style>body,html,iframe{margin:0;padding:0;}</style></head><body><iframe width=\"320\" height=\"320\" frameborder=\"0\" style=\"border:0\" src=\"%@\" ></iframe></body></html>", _src];
+    [_mapWebView loadHTMLString:iframe baseURL:nil];
 }
 
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 /*

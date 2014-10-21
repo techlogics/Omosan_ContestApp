@@ -22,59 +22,72 @@
 
 @end
 
+
 @implementation ViewController
+
+const NSString * API_URL_FOR_PLACE;
+const NSString * API_URL_FOR_PHOTO;
+const NSString * API_URL_FOR_DETAIL;
+const NSString * API_URL_FOR_MAP;
+const NSString * API_KEY;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    API_URL_FOR_PLACE = @"https://maps.googleapis.com/maps/api/place/nearbysearch/json";
+    API_URL_FOR_PHOTO = @"https://maps.googleapis.com/maps/api/place/photo?maxwidth=500&maxheight=500";
+    API_URL_FOR_DETAIL = @"https://maps.googleapis.com/maps/api/place/details/json?";
+    API_URL_FOR_MAP = @"https://www.google.com/maps/embed/v1/place?";
+    API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
 
+    _q_global = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _q_main = dispatch_get_main_queue();
     
     _placeCollectionView.delegate = self;
     _placeCollectionView.dataSource = self;
     _locationManager = [[CLLocationManager alloc] init];
     _locationManager.delegate = self;
-    _q_global = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    _q_main = dispatch_get_main_queue();
-    
-    if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) { // iOS8以降
-        // 位置情報測位の許可を求めるメッセージを表示する
-        //	[_locationManager requestAlwaysAuthorization]; // 常に許可
-        [_locationManager requestWhenInUseAuthorization]; // 使用中のみ許可
-    } else { // iOS7以前
-        // 位置測位スタート
-        [_locationManager startUpdatingLocation];
-    }
+
     _placeCollectionView.alwaysBounceVertical = YES;
+    
     _refresh = [[UIRefreshControl alloc] init];
     [_refresh addTarget:self
                  action:@selector(refreshAction:)
        forControlEvents:UIControlEventValueChanged];
     [_placeCollectionView addSubview:_refresh];
+
+    if ([_locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) { // iOS8以降
+        // 位置情報測位の許可を求めるメッセージを表示する
+        [_locationManager requestWhenInUseAuthorization]; // 使用中のみ許可
+    } else { // iOS7以前
+        // 位置測位スタート
+        [_locationManager startUpdatingLocation];
+    }
 }
 
 #pragma mark - UICollectionViewDatasource Methods
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
     return 20;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    PlaceCollectionViewCell* cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PlaceCell" forIndexPath:indexPath];
+    PlaceCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PlaceCell" forIndexPath:indexPath];
     //set offset accordingly
     CGFloat yOffset = ((self.placeCollectionView.contentOffset.y - cell.frame.origin.y) / IMAGE_HEIGHT) * IMAGE_OFFSET_SPEED;
     cell.imageOffset = CGPointMake(0.0f, yOffset);
     cell.name.text = @"Loading";
-    cell.image = [UIImage imageNamed:@"blank"];
+    cell.image = nil;
     dispatch_async(_q_global, ^{
-
-        NSString * photoUrl = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&maxheight=1000&photoreference=%@&sensor=true&key=AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY", [_placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0]];
+        NSString * photoUrl = [NSString stringWithFormat:@"%@&photoreference=%@&sensor=true&key=%@", API_URL_FOR_PHOTO, [_placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0], API_KEY];
         NSData * photoData = [NSData dataWithContentsOfURL:[NSURL URLWithString:photoUrl]];
         dispatch_async(_q_main, ^{
-
             UIImage * image = [[UIImage alloc] initWithData:photoData];
             cell.image = image;
             cell.name.text = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
-            UIApplication *application = [UIApplication sharedApplication];
+            UIApplication * application = [UIApplication sharedApplication];
             application.networkActivityIndicatorVisible = NO;
         });
     });
@@ -84,18 +97,37 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+
+    NSString * detailUrl = [NSString stringWithFormat:@"%@reference=%@&sensor=true&key=%@", API_URL_FOR_DETAIL, _placeList[indexPath.row][@"reference"], API_KEY];
+    NSURLRequest * detailRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:detailUrl]];
+    NSData * detailJson = [NSURLConnection sendSynchronousRequest:detailRequest returningResponse:nil error:nil];
+    NSError * error=nil;
+    NSArray * detailArray = [NSJSONSerialization JSONObjectWithData:detailJson options:NSJSONReadingAllowFragments error:&error];
+    NSString* inputString = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
+    CFStringRef originalString = (__bridge CFStringRef)inputString;
+    CFStringRef encodedString = CFURLCreateStringByAddingPercentEscapes(
+                                                                        kCFAllocatorDefault,
+                                                                        originalString,
+                                                                        NULL,
+                                                                        CFSTR(":/?#[]@!$&'()*+,;="),
+                                                                        kCFStringEncodingUTF8);
+    NSString * mapUrl = [NSString stringWithFormat:@"%@key=%@&q=%@", API_URL_FOR_MAP, API_KEY, encodedString];
     DetailViewController * detailViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"DetailViewController"];
-    
+    detailViewController.name = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
+    detailViewController.url = [NSString stringWithFormat:@"%@", [[detailArray valueForKey:@"result"] valueForKey:@"website"]];
+    detailViewController.phone = [NSString stringWithFormat:@"%@", [[detailArray valueForKey:@"result"] valueForKey:@"international_phone_number"]];
+    detailViewController.adress = [NSString stringWithFormat:@"%@", [[detailArray valueForKey:@"result"] valueForKey:@"formatted_address"]];
+    detailViewController.src = mapUrl;
+    // NSLog(@"%@", _placeList[indexPath.row]);
+    NSLog(@"%@", mapUrl);
     [self.navigationController pushViewController:detailViewController animated:YES];
 }
 
 // 位置情報が許可されたら呼ばれる
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    
     if (status == kCLAuthorizationStatusAuthorizedAlways ||
         status == kCLAuthorizationStatusAuthorizedWhenInUse) {
-        
         // 位置測位スタート
         [_locationManager startUpdatingLocation];
     }
@@ -104,12 +136,8 @@
 // 位置情報が更新すると呼ばれる
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    
-    CLLocation *newLocation = [locations lastObject];
-    NSLog(@"%f %f", newLocation.coordinate.latitude, newLocation.coordinate.longitude);
-    
+    CLLocation * newLocation = [locations lastObject];
     [self getPlaceListWith:newLocation.coordinate.latitude and:newLocation.coordinate.longitude];
-    
     // 位置測位を終了する
     [_locationManager stopUpdatingLocation];
 }
@@ -121,8 +149,7 @@
     application.networkActivityIndicatorVisible = YES;
     
     dispatch_async(_q_global, ^{
-        
-        NSString * url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=500&sensor=true&key=AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY", latitude, longtitude];
+        NSString * url = [NSString stringWithFormat:@"%@?location=%f,%f&radius=500&sensor=true&key=%@", API_URL_FOR_PLACE, latitude, longtitude, API_KEY];
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
         NSData *json = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
         NSError *error=nil;
@@ -137,9 +164,7 @@
             UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Sorry..." message:@"Over Query Limit.Please Try Again Tomorrow" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [self.view addSubview:alert];
         }
-        
         dispatch_async(_q_main, ^{
-            
             UIApplication *application = [UIApplication sharedApplication];
             application.networkActivityIndicatorVisible = NO; // インジケータOFF
             [_placeCollectionView reloadData];
@@ -159,8 +184,8 @@
 #pragma mark - UIScrollViewdelegate methods
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    for(PlaceCollectionViewCell *view in self.placeCollectionView.visibleCells) {
-        CGFloat yOffset = ((self.placeCollectionView.contentOffset.y - view.frame.origin.y) / IMAGE_HEIGHT) * IMAGE_OFFSET_SPEED;
+    for(PlaceCollectionViewCell * view in _placeCollectionView.visibleCells) {
+        CGFloat yOffset = ((_placeCollectionView.contentOffset.y - view.frame.origin.y) / IMAGE_HEIGHT) * IMAGE_OFFSET_SPEED;
         view.imageOffset = CGPointMake(0.0f, yOffset);
     }
 }

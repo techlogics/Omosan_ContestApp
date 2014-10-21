@@ -41,10 +41,11 @@
     self.MJImageView.contentMode = UIViewContentModeScaleAspectFill;
     self.MJImageView.clipsToBounds = NO;
     
-    self.name = [[UILabel alloc] initWithFrame:CGRectMake(20, 140, 280, 20)]; //
+    self.name = [[UILabel alloc] initWithFrame:CGRectMake(0, 130, 320, 30)]; //
     self.name.textAlignment = NSTextAlignmentCenter;
     self.name.textColor = [UIColor whiteColor];
-    self.name.font = [UIFont fontWithName:@"HelveticaNeue" size:24];
+    self.name.backgroundColor = [UIColor blackColor];
+    self.name.font = [UIFont fontWithName:@"HelveticaNeue" size:15];
     [self addSubview:self.MJImageView];
     [self addSubview:self.name];
 }
