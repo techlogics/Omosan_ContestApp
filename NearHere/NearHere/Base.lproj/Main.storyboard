@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="9CF-I4-ULL">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="9CF-I4-ULL">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
+        <!--Settings Table View Controller-->
+        <scene sceneID="XOp-vr-DyI">
+            <objects>
+                <tableViewController id="LPs-fe-0KM" customClass="SettingsTableViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="6oV-TE-RC6">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="typesCell" id="phT-dA-O76">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="phT-dA-O76" id="XF5-fI-HwJ">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="LPs-fe-0KM" id="sRq-K4-DhG"/>
+                            <outlet property="delegate" destination="LPs-fe-0KM" id="rzT-WC-tKR"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nho-RE-eXv" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1946" y="387"/>
+        </scene>
         <!--Popular Here-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
@@ -50,7 +76,13 @@
                             <constraint firstAttribute="trailingMargin" secondItem="45d-MJ-ZNd" secondAttribute="trailing" constant="-16" id="zrL-iE-O7S"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Popular Here" id="Y7n-am-N5M"/>
+                    <navigationItem key="navigationItem" title="Popular Here" id="Y7n-am-N5M">
+                        <barButtonItem key="leftBarButtonItem" title="Settings" id="az0-kR-Cjf">
+                            <connections>
+                                <segue destination="LPs-fe-0KM" kind="show" id="qu3-Rn-i4l"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="placeCollectionView" destination="45d-MJ-ZNd" id="mIn-JL-1sD"/>
                     </connections>
@@ -144,7 +176,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rG5-U2-vKk" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1919" y="387"/>
+            <point key="canvasLocation" x="1272" y="1071"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="3vc-sT-8pO">

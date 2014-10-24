@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		964E5E9A19F8D3650013A22D /* SettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 964E5E9919F8D3650013A22D /* SettingsTableViewController.m */; };
+		964E5E9C19F8DD180013A22D /* types.json in Resources */ = {isa = PBXBuildFile; fileRef = 964E5E9B19F8DD180013A22D /* types.json */; };
 		96972B0119F29BB50061E74C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 96972B0019F29BB50061E74C /* main.m */; };
 		96972B0419F29BB50061E74C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 96972B0319F29BB50061E74C /* AppDelegate.m */; };
 		96972B0719F29BB50061E74C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96972B0619F29BB50061E74C /* ViewController.m */; };
@@ -30,6 +32,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		964E5E9819F8D3650013A22D /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SettingsTableViewController.h; path = ../SettingsTableViewController.h; sourceTree = "<group>"; };
+		964E5E9919F8D3650013A22D /* SettingsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SettingsTableViewController.m; path = ../SettingsTableViewController.m; sourceTree = "<group>"; };
+		964E5E9B19F8DD180013A22D /* types.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
 		96972AFB19F29BB50061E74C /* NearHere.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NearHere.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		96972AFF19F29BB50061E74C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		96972B0019F29BB50061E74C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -89,6 +94,8 @@
 		96972AFD19F29BB50061E74C /* NearHere */ = {
 			isa = PBXGroup;
 			children = (
+				964E5E9819F8D3650013A22D /* SettingsTableViewController.h */,
+				964E5E9919F8D3650013A22D /* SettingsTableViewController.m */,
 				96972B0219F29BB50061E74C /* AppDelegate.h */,
 				96972B0319F29BB50061E74C /* AppDelegate.m */,
 				96972B4419F2BCC80061E74C /* PlaceCollectionViewCell.h */,
@@ -100,6 +107,7 @@
 				9699554D19F4DF0B00C7A9B4 /* DetailViewController.m */,
 				96972B0B19F29BB50061E74C /* Images.xcassets */,
 				96972B0D19F29BB50061E74C /* LaunchScreen.xib */,
+				964E5E9B19F8DD180013A22D /* types.json */,
 				96ABCACA19F3A4770082A468 /* noPhoto.png */,
 				96972AFE19F29BB50061E74C /* Supporting Files */,
 			);
@@ -213,6 +221,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96972B0A19F29BB50061E74C /* Main.storyboard in Resources */,
+				964E5E9C19F8DD180013A22D /* types.json in Resources */,
 				96ABCACB19F3A4770082A468 /* noPhoto.png in Resources */,
 				96972B0F19F29BB50061E74C /* LaunchScreen.xib in Resources */,
 				96972B0C19F29BB50061E74C /* Images.xcassets in Resources */,
@@ -233,6 +242,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				964E5E9A19F8D3650013A22D /* SettingsTableViewController.m in Sources */,
 				9699554E19F4DF0B00C7A9B4 /* DetailViewController.m in Sources */,
 				96972B4619F2BCDD0061E74C /* PlaceCollectionViewCell.m in Sources */,
 				96972B0719F29BB50061E74C /* ViewController.m in Sources */,

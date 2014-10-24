@@ -10,7 +10,7 @@
 
 @interface PlaceCollectionViewCell()
 
-@property (nonatomic, strong, readwrite) UIImageView *MJImageView;
+@property (nonatomic, strong, readwrite) UIImageView * MJImageView;
 
 @end
 

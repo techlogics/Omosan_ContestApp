@@ -12,12 +12,12 @@
 
 @interface ViewController () <UICollectionViewDataSource, UICollectionViewDelegate, CLLocationManagerDelegate, UIScrollViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UICollectionView *placeCollectionView;
+@property (weak, nonatomic) IBOutlet UICollectionView * placeCollectionView;
 @property (nonatomic, strong) NSMutableArray * images;
 @property (nonatomic, retain) CLLocationManager * locationManager;
 @property (nonatomic, copy)   NSArray * placeList;
-@property (nonatomic) dispatch_queue_t q_global; // = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-@property (nonatomic) dispatch_queue_t q_main; // = dispatch_get_main_queue();
+@property (nonatomic) dispatch_queue_t q_global;
+@property (nonatomic) dispatch_queue_t q_main;
 @property UIRefreshControl * refresh;
 
 @end
@@ -97,13 +97,12 @@ const NSString * API_KEY;
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-
     NSString * detailUrl = [NSString stringWithFormat:@"%@reference=%@&sensor=true&key=%@", API_URL_FOR_DETAIL, _placeList[indexPath.row][@"reference"], API_KEY];
     NSURLRequest * detailRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:detailUrl]];
     NSData * detailJson = [NSURLConnection sendSynchronousRequest:detailRequest returningResponse:nil error:nil];
     NSError * error=nil;
     NSArray * detailArray = [NSJSONSerialization JSONObjectWithData:detailJson options:NSJSONReadingAllowFragments error:&error];
-    NSString* inputString = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
+    NSString * inputString = [NSString stringWithFormat:@"%@", _placeList[indexPath.row][@"name"]];
     CFStringRef originalString = (__bridge CFStringRef)inputString;
     CFStringRef encodedString = CFURLCreateStringByAddingPercentEscapes(
                                                                         kCFAllocatorDefault,
@@ -119,7 +118,7 @@ const NSString * API_KEY;
     detailViewController.adress = [NSString stringWithFormat:@"%@", [[detailArray valueForKey:@"result"] valueForKey:@"formatted_address"]];
     detailViewController.src = mapUrl;
     // NSLog(@"%@", _placeList[indexPath.row]);
-    NSLog(@"%@", mapUrl);
+    // NSLog(@"%@", mapUrl);
     [self.navigationController pushViewController:detailViewController animated:YES];
 }
 
@@ -148,13 +147,18 @@ const NSString * API_KEY;
     UIApplication * application = [UIApplication sharedApplication];
     application.networkActivityIndicatorVisible = YES;
     
+    // &types=XXX|YYY|ZZZ
+    
     dispatch_async(_q_global, ^{
-        NSString * url = [NSString stringWithFormat:@"%@?location=%f,%f&radius=500&sensor=true&key=%@", API_URL_FOR_PLACE, latitude, longtitude, API_KEY];
-        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+
+        NSString * url = [NSString stringWithFormat:@"%@?location=%f,%f&radius=500&&sensor=true&key=%@", API_URL_FOR_PLACE, latitude, longtitude, API_KEY];
+        NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
         NSData *json = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
         NSError *error=nil;
         NSArray *array = [NSJSONSerialization JSONObjectWithData:json options:NSJSONReadingAllowFragments error:&error];
-        NSLog(@"%@", [array valueForKey:@"status"]);
+        // NSLog(@"%@", [array valueForKey:@"status"]);
+        // NSLog(@"%@", [self getTypes]);
+        NSLog(@"%@", url);
         if ([[array valueForKey:@"status"] isEqualToString:@"OK"]) {
             _placeList = [array valueForKey:@"results"];
             dispatch_async(_q_main, ^{
@@ -165,7 +169,7 @@ const NSString * API_KEY;
             [self.view addSubview:alert];
         }
         dispatch_async(_q_main, ^{
-            UIApplication *application = [UIApplication sharedApplication];
+            UIApplication * application = [UIApplication sharedApplication];
             application.networkActivityIndicatorVisible = NO; // インジケータOFF
             [_placeCollectionView reloadData];
             [_refresh endRefreshing];
@@ -173,6 +177,24 @@ const NSString * API_KEY;
     });
     
 }
+
+//- (NSString *)getTypes
+//{
+//    NSString * filePath = [[NSBundle mainBundle] pathForResource:@"types" ofType:@"json"];
+//    NSFileHandle * fileHandle = [NSFileHandle fileHandleForReadingAtPath:filePath];
+//    NSData * data = [fileHandle readDataToEndOfFile];
+//    NSDictionary * typesKey = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+//    NSString * typeString = [[NSString alloc] init];
+//
+//    NSUserDefaults * settings = [NSUserDefaults standardUserDefaults];
+//    NSDictionary * dictionary = [settings dictionaryRepresentation];
+//    for (int i = 0; i < dictionary.count; i++) {
+//        if ([settings objectForKey:dictionary.allKeys[i]] == [typesKey valueForKey:typesKey.allKeys[i]]) {
+//            [typeString stringByAppendingString:[typesKey valueForKey:typesKey.allKeys[i]]];
+//        }
+//    }
+//    return typeString;
+//}
 
 - (void)refreshAction:(id)sender
 {
