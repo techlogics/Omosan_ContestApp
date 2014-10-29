@@ -10,16 +10,16 @@
 
 @interface DetailViewController : UIViewController
 
-@property (weak, nonatomic) IBOutlet UIWebView * mapWebView;
-@property (weak, nonatomic) IBOutlet UILabel * nameLabel;
-@property (weak, nonatomic) IBOutlet UILabel * adressLabel;
-@property (weak, nonatomic) IBOutlet UILabel * phoneLabel;
-@property (weak, nonatomic) IBOutlet UILabel * urlLabel;
+@property (weak, nonatomic) IBOutlet UIWebView *mapWebView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *adressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *phoneLabel;
+@property (weak, nonatomic) IBOutlet UILabel *urlLabel;
 
-@property NSString * name;
-@property NSString * adress;
-@property NSString * phone;
-@property NSString * url;
-@property NSString * src;
+@property NSString *name;
+@property NSString *adress;
+@property NSString *phone;
+@property NSString *url;
+@property NSString *src;
 
 @end
