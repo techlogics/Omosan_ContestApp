@@ -23,12 +23,15 @@
     self.phoneLabel.text = self.phone;
     
     self.mapWebView.scrollView.scrollEnabled = NO;
-    NSString *iframe = [NSString stringWithFormat:@"<html><head><title></title><style>body,html,iframe{margin:0;padding:0;}</style></head><body><iframe width=\"266\" height=\"266\" frameborder=\"0\" style=\"border:0\" src=\"%@\" ></iframe></body></html>", self.src];
+    NSString *iframe = [NSString stringWithFormat:@"<html><head><title></title><style>body,html,iframe{margin:0;padding:0;}</style></head><body><iframe width=\"309\" height=\"309\" frameborder=\"0\" style=\"border:0\" src=\"%@\" ></iframe></body></html>", self.src];
     [self.mapWebView loadHTMLString:iframe baseURL:nil];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+- (void)viewDidDisappear {
 }
 
 @end

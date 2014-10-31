@@ -15,5 +15,7 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) CLLocationManager *locationManager;
 @property (nonatomic, copy) NSString *types;
+@property (nonatomic, retain) NSArray *placeList;
+@property UIRefreshControl * refresh;
 
 @end

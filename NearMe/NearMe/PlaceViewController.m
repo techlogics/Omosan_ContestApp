@@ -11,10 +11,8 @@
 #import "DetailViewController.h"
 
 
-@interface PlaceViewController () <UIScrollViewDelegate, CLLocationManagerDelegate, UITableViewDelegate, UITableViewDataSource>
+@interface PlaceViewController () <UIScrollViewDelegate, CLLocationManagerDelegate, UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate>
 
-@property (nonatomic, copy) NSArray *placeList;
-@property UIRefreshControl * refresh;
 
 @end
 
@@ -35,8 +33,8 @@ const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
     self.tableView.dataSource = self;
     self.refresh = [[UIRefreshControl alloc] init];
     [self.refresh addTarget:self
-                 action:@selector(refreshAction:)
-       forControlEvents:UIControlEventValueChanged];
+                     action:@selector(refreshAction:)
+           forControlEvents:UIControlEventValueChanged];
     
     [self.tableView addSubview:self.refresh];
     
@@ -50,6 +48,14 @@ const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self scrollViewDidScroll:nil];
+}
+
+- (void)viewWillDisappear {
+    self.locationManager.delegate = nil;
+    self.tableView.delegate = nil;
+    self.tableView.dataSource = nil;
+    self.placeList = nil;
+    self.types = nil;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -83,11 +89,14 @@ const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.tableView reloadData];
             });
-            
+        } else if (self.placeList == nil) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No result." message:@"Sorry.. No Result." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [self.tableView addSubview:alert];
         } else {
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Sorry..." message:@"Over Query Limit.Please Try Again Tomorrow" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-            [self.view addSubview:alert];
+            [self.tableView addSubview:alert];
         }
+        
         
         dispatch_async(dispatch_get_main_queue(), ^{
             UIApplication *application = [UIApplication sharedApplication];
@@ -129,6 +138,7 @@ const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     ParallaxCell *cell = [tableView dequeueReusableCellWithIdentifier:@"parallaxCell"];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.parallaxImage.image = nil;
