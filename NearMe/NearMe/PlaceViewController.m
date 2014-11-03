@@ -52,10 +52,13 @@ const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
 
 - (void)viewWillDisappear {
     self.locationManager.delegate = nil;
+    self.tableView = nil;
     self.tableView.delegate = nil;
     self.tableView.dataSource = nil;
     self.placeList = nil;
-    self.types = nil;
+    self.refresh = nil;
+    
+    // self.types = nil;
 }
 
 - (void)didReceiveMemoryWarning {

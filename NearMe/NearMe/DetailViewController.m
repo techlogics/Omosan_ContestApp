@@ -16,7 +16,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationController.title = @"Detail";
+    self.navigationController.navigationItem.title = @"Detail";
+    if (!self.nameLabel.text) {
+        self.nameLabel.text = @"No Information.";
+    }
+    if (!self.adressLabel.text) {
+        self.adressLabel.text = @"No Information.";
+    }
+    if (!self.urlLabel.text) {
+        self.urlLabel.text = @"No Information.";
+    }
+    if (!self.phoneLabel.text) {
+        self.phoneLabel.text = @"No Information.";
+    }
     self.nameLabel.text = self.name;
     self.adressLabel.text = self.adress;
     self.urlLabel.text = self.url;
@@ -32,6 +44,12 @@
 }
 
 - (void)viewDidDisappear {
+    self.name = nil;
+    self.adress = nil;
+    self.url = nil;
+    self.phone = nil;
+    self.mapWebView = nil;
+    self.mapWebView.delegate = nil;
 }
 
 @end
