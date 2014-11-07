@@ -22,7 +22,7 @@ const NSString * API_URL_FOR_PLACE = @"https://maps.googleapis.com/maps/api/plac
 const NSString * API_URL_FOR_PHOTO = @"https://maps.googleapis.com/maps/api/place/photo?maxwidth=640&maxheight=402";
 const NSString * API_URL_FOR_DETAIL = @"https://maps.googleapis.com/maps/api/place/details/json?";
 const NSString * API_URL_FOR_MAP = @"https://www.google.com/maps/embed/v1/place?";
-const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
+const NSString * API_KEY = @"AIzaSyDmBgU0QbVjlxPnUGQDMpKVUaoincJ2POc";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -82,7 +82,7 @@ const NSString * API_KEY = @"AIzaSyCdOeV8oBeI3DK61dA95mJ4OcqqAfeRXIY";
         NSError *error=nil;
         NSArray *array = [NSJSONSerialization JSONObjectWithData:placeData options:NSJSONReadingAllowFragments error:&error];
         
-        // NSLog(@"%@", [array valueForKey:@"status"]);
+        NSLog(@"%@", [array valueForKey:@"status"]);
         // NSLog(@"%@", [self getTypes]);
         // NSLog(@"%@", placeUrl);
         
