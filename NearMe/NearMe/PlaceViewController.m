@@ -9,6 +9,7 @@
 #import "PlaceViewController.h"
 #import "ParallaxCell.h"
 #import "DetailViewController.h"
+#import "AFNetworking.h"
 
 
 @interface PlaceViewController () <UIScrollViewDelegate, CLLocationManagerDelegate, UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate>
@@ -22,7 +23,7 @@ const NSString * API_URL_FOR_PLACE = @"https://maps.googleapis.com/maps/api/plac
 const NSString * API_URL_FOR_PHOTO = @"https://maps.googleapis.com/maps/api/place/photo?maxwidth=640&maxheight=402";
 const NSString * API_URL_FOR_DETAIL = @"https://maps.googleapis.com/maps/api/place/details/json?";
 const NSString * API_URL_FOR_MAP = @"https://www.google.com/maps/embed/v1/place?";
-const NSString * API_KEY = @"AIzaSyDmBgU0QbVjlxPnUGQDMpKVUaoincJ2POc";
+const NSString * API_KEY = @"AIzaSyCXTs1jpiaCLWknu0mrIqepraIfSU9l6cg";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -47,18 +48,13 @@ const NSString * API_KEY = @"AIzaSyDmBgU0QbVjlxPnUGQDMpKVUaoincJ2POc";
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self scrollViewDidScroll:nil];
+    //[self scrollViewDidScroll:nil];
 }
 
 - (void)viewWillDisappear {
     self.locationManager.delegate = nil;
-    self.tableView = nil;
     self.tableView.delegate = nil;
     self.tableView.dataSource = nil;
-    self.placeList = nil;
-    self.refresh = nil;
-    
-    // self.types = nil;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -73,41 +69,31 @@ const NSString * API_KEY = @"AIzaSyDmBgU0QbVjlxPnUGQDMpKVUaoincJ2POc";
     UIApplication *application = [UIApplication sharedApplication];
     application.networkActivityIndicatorVisible = YES;
     
-    // &types=XXX|YYY|ZZZ
+    NSString *placeUrl = [NSString stringWithFormat:@"%@?location=%f,%f&radius=1000&types=%@&sensor=true&key=%@", API_URL_FOR_PLACE, latitude, longtitude, self.types, API_KEY];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        NSString *placeUrl = [NSString stringWithFormat:@"%@?location=%f,%f&radius=1000&types=%@&sensor=true&key=%@", API_URL_FOR_PLACE, latitude, longtitude, self.types, API_KEY];
-        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:placeUrl]];
-        NSData *placeData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
-        NSError *error=nil;
-        NSArray *array = [NSJSONSerialization JSONObjectWithData:placeData options:NSJSONReadingAllowFragments error:&error];
-        
-        NSLog(@"%@", [array valueForKey:@"status"]);
-        // NSLog(@"%@", [self getTypes]);
-        // NSLog(@"%@", placeUrl);
-        
-        if ([[array valueForKey:@"status"] isEqualToString:@"OK"]) {
-            self.placeList = [array valueForKey:@"results"];
-            
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    [manager GET:placeUrl parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"JSON: %@", responseObject);
+        if ([[responseObject valueForKey:@"status"] isEqualToString:@"OK"]) {
+            self.placeList = responseObject[@"results"];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.tableView reloadData];
+                UIApplication *application = [UIApplication sharedApplication];
+                application.networkActivityIndicatorVisible = NO;
+                [self.refresh endRefreshing];
             });
-        } else if (self.placeList == nil) {
+        } else if ([[responseObject valueForKey:@"status"] isEqualToString:@"ZERO_RESULTS"]) {
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No result." message:@"Sorry.. No Result." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [self.tableView addSubview:alert];
+            [alert show];
         } else {
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Sorry..." message:@"Over Query Limit.Please Try Again Tomorrow" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [self.tableView addSubview:alert];
+            [alert show];
         }
-        
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            UIApplication *application = [UIApplication sharedApplication];
-            application.networkActivityIndicatorVisible = NO;
-            [self.tableView reloadData];
-            [self.refresh endRefreshing];
-        });
-    });
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+    }];
 }
 
 // 位置情報が許可されたら呼ばれる
@@ -144,26 +130,13 @@ const NSString * API_KEY = @"AIzaSyDmBgU0QbVjlxPnUGQDMpKVUaoincJ2POc";
     
     ParallaxCell *cell = [tableView dequeueReusableCellWithIdentifier:@"parallaxCell"];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    cell.parallaxImage.image = nil;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        
+    if ([self.placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0]) {
         NSString *photoUrl = [NSString stringWithFormat:@"%@&photoreference=%@&sensor=true&key=%@", API_URL_FOR_PHOTO, [self.placeList[indexPath.row][@"photos"] valueForKey:@"photo_reference"][0], API_KEY];
-        NSData *photoData = [NSData dataWithContentsOfURL:[NSURL URLWithString:photoUrl]];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            UIImage *image = [[UIImage alloc] initWithData:photoData];
-            cell.parallaxImage.image = image;
-            if (!cell.parallaxImage.image) {
-                cell.parallaxImage.image = [UIImage imageNamed:@"noPhoto"];
-            }
-            cell.titleLabel.text = [NSString stringWithFormat:@"%@", self.placeList[indexPath.row][@"name"]];
-            UIApplication *application = [UIApplication sharedApplication];
-            application.networkActivityIndicatorVisible = NO;
-            
-        });
-    });
-    
+        [cell setImageWith:photoUrl];
+    } else {
+        cell.parallaxImage.image = [UIImage imageNamed:@"noPhoto"];
+    }
+    cell.titleLabel.text = [NSString stringWithFormat:@"%@", self.placeList[indexPath.row][@"name"]];
     return cell;
 }
 
@@ -184,6 +157,7 @@ const NSString * API_KEY = @"AIzaSyDmBgU0QbVjlxPnUGQDMpKVUaoincJ2POc";
                                                                         kCFStringEncodingUTF8);
     
     NSString *mapUrl = [NSString stringWithFormat:@"%@key=%@&q=%@", API_URL_FOR_MAP, API_KEY, encodedString];
+    
     DetailViewController *detailViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"DetailViewController"];
     detailViewController.name = [NSString stringWithFormat:@"%@", self.placeList[indexPath.row][@"name"]];
     detailViewController.url = [NSString stringWithFormat:@"%@", [[detailArray valueForKey:@"result"] valueForKey:@"website"]];

@@ -7,6 +7,8 @@ target 'NearMe' do
 
 platform :ios, "8.1"
 pod 'Canvas'
+pod 'AFNetworking'
+pod 'SDWebImage'
 
 end
 

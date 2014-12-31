@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <SDWebImage/UIImageView+WebCache.h>
 
 @interface ParallaxCell : UITableViewCell
 
@@ -14,5 +15,5 @@
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
 - (void)cellOnTableView:(UITableView *)tableView didScrollOnView:(UIView *)view;
-
+- (void)setImageWith:(NSString *)photoReference;
 @end

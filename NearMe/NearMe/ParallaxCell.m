@@ -36,4 +36,7 @@
     self.parallaxImage.frame = imageRect;
 }
 
+- (void)setImageWith:(NSString *)photoReference {
+    [self.parallaxImage sd_setImageWithURL:[NSURL URLWithString:photoReference] placeholderImage:[UIImage imageNamed:@"noPhoto"]];
+}
 @end

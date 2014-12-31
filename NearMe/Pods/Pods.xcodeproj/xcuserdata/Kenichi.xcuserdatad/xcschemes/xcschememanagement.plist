@@ -4,7 +4,17 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Pods-NearMe-AFNetworking.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-NearMe-Canvas.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-NearMe-SDWebImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -17,12 +27,22 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>68BDF55B06B8AAB0A045404F</key>
+		<key>2537A4C0EB88170FB2F4C9B0</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>72026872F6056C1A79184059</key>
+		<key>6EF2111E86A6F2A373FD54B0</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7C46AEA1C5EA98B17989C542</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F42DE90120BEA49DA2374797</key>
 		<dict>
 			<key>primary</key>
 			<true/>
