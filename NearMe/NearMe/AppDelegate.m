@@ -26,11 +26,10 @@
     
     // iPadかどうか判断する
     if ( ![modelname hasPrefix:@"iPad"] ) {
-        
         // Windowスクリーンのサイズを取得
         CGRect r = [[UIScreen mainScreen] bounds];
         // 縦の長さが480の場合、古いiPhoneだと判定
-        if(r.size.height == 568){
+        if(r.size.height == 480){
             // NSLog(@"Old iPhone");
             storyBoardName = @"Main2";
         }else{
@@ -39,7 +38,7 @@
         }
     }else{
         // NSLog(@"iPad");
-        storyBoardName =@"Main";
+        storyBoardName =@"Main2";
     }
     // StoryBoardのインスタンス化
     storyboard = [UIStoryboard storyboardWithName:storyBoardName bundle:nil];

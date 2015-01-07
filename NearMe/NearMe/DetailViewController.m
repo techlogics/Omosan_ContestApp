@@ -17,16 +17,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationController.navigationItem.title = @"Detail";
-    if (!self.nameLabel.text) {
+    if (self.nameLabel.text == nil) {
         self.nameLabel.text = @"No Information.";
     }
-    if (!self.adressLabel.text) {
+    if (self.adressLabel.text == nil) {
         self.adressLabel.text = @"No Information.";
     }
-    if (!self.urlLabel.text) {
+    if (self.urlLabel.text == nil) {
         self.urlLabel.text = @"No Information.";
     }
-    if (!self.phoneLabel.text) {
+    if (self.phoneLabel.text == nil) {
         self.phoneLabel.text = @"No Information.";
     }
     self.nameLabel.text = self.name;
@@ -34,8 +34,11 @@
     self.urlLabel.text = self.url;
     self.phoneLabel.text = self.phone;
     
-    self.mapWebView.scrollView.scrollEnabled = NO;
+    
+    
     NSString *iframe = [NSString stringWithFormat:@"<html><head><title></title><style>body,html,iframe{margin:0;padding:0;}</style></head><body><iframe width=\"309\" height=\"309\" frameborder=\"0\" style=\"border:0\" src=\"%@\" ></iframe></body></html>", self.src];
+    NSLog(@"iframe: %@", iframe);
+    
     [self.mapWebView loadHTMLString:iframe baseURL:nil];
 }
 
